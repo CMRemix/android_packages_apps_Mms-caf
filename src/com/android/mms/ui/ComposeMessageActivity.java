@@ -218,7 +218,7 @@ public class ComposeMessageActivity extends Activity
     private static final boolean DEBUG = false;
     private static final boolean TRACE = false;
     private static final boolean LOCAL_LOGV = false;
-    private static final boolean DEBUG_MULTI_CHOICE = true;
+    private static final boolean DEBUG_MULTI_CHOICE = false;
 
     // Menu ID
     private static final int MENU_ADD_SUBJECT           = 0;
@@ -901,7 +901,7 @@ public class ComposeMessageActivity extends Activity
     }
 
     private void sendMsimMessage(boolean bCheckEcmMode, int subId) {
-        mWorkingMessage.setWorkingMessageSub(subId);
+        mWorkingMessage.setSubscriptionId(subId);
         sendMessage(bCheckEcmMode);
     }
 
@@ -910,12 +910,10 @@ public class ComposeMessageActivity extends Activity
             MessageUtils.showSimSelector(this, new MessageUtils.OnSimSelectedCallback() {
                 @Override
                 public void onSimSelected(int subId) {
-                    mWorkingMessage.setWorkingMessageSub(subId);
-                    sendMessage(bCheckEcmMode);
+                    sendMsimMessage(bCheckEcmMode, subId);
                 }
             });
         } else {
-            mWorkingMessage.setWorkingMessageSub(SubscriptionManager.getDefaultSmsSubId());
             sendMessage(bCheckEcmMode);
         }
     }
@@ -5605,7 +5603,6 @@ public class ComposeMessageActivity extends Activity
             for (Integer pos : mSelectedPos) {
                 Cursor c = (Cursor) getListView().getAdapter().getItem(pos);
                 String type = c.getString(COLUMN_MSG_TYPE);
-                logMultiChoice("message type is:" + type);
                 if ("sms".equals(type)) {
                     mSelectedMsg.add(ContentUris.withAppendedId(
                             Sms.CONTENT_URI, c.getLong(COLUMN_ID)));
@@ -5621,11 +5618,9 @@ public class ComposeMessageActivity extends Activity
             SparseBooleanArray booleanArray = getListView()
                     .getCheckedItemPositions();
             mSelectedPos.clear();
-            logMultiChoice("booleanArray = " + booleanArray);
             for (int i = 0; i < booleanArray.size(); i++) {
                 int pos = booleanArray.keyAt(i);
                 boolean checked = booleanArray.get(pos);
-                logMultiChoice("pos=" + pos + ",checked=" + checked);
                 if (checked) {
                     mSelectedPos.add(pos);
                 }
