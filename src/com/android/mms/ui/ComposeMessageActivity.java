@@ -3724,13 +3724,6 @@ public class ComposeMessageActivity extends Activity
             ArrayList<String> numbers = params[0];
 
             ContactList list = ContactList.getByNumbers(numbers, true);
-            ContactList existing = mRecipientsEditor.constructContactsFromInput(true);
-            for (Contact contact : existing) {
-                if (!contact.existsInDatabase()) {
-                    list.add(contact);
-                }
-            }
-
             mRecipientsEditor.populate(list);
             return null;
         }
@@ -5840,11 +5833,15 @@ public class ComposeMessageActivity extends Activity
                 Cursor c = (Cursor) getListView().getAdapter().getItem(pos);
                 String type = c.getString(COLUMN_MSG_TYPE);
                 if (type.equals("mms")) {
-                    sBuilder.append(mMsgListAdapter.getCachedBodyForPosition(pos));
+                    CharSequence value = mMsgListAdapter.getCachedBodyForPosition(pos);
+                    if(!TextUtils.isEmpty(value)) {
+                        sBuilder.append(value);
+                        sBuilder.append(LINE_BREAK);
+                    }
                 } else {
                     sBuilder.append(c.getString(COLUMN_SMS_BODY));
+                    sBuilder.append(LINE_BREAK);
                 }
-                sBuilder.append(LINE_BREAK);
             }
             if (!TextUtils.isEmpty(sBuilder.toString())) {
                 copyToClipboard(sBuilder.toString());
